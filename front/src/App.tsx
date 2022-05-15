@@ -1,45 +1,42 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useState } from "react";
+import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
 
-function App() {
-  const [count, setCount] = useState(0)
+const range = (n: number) => [...Array(n).keys()]
+const createRow = (cols: number): CellBase[] => range(cols).map((i) => {
+  return i === (cols - 1) ? { value: undefined, readOnly: true } : { value: undefined }
+})
+
+const App = () => {
+  const labels = ['ID', 'Name', 'Type', 'Previous Group', 'New Group']
+  const [matrix, setMatrix] = useState<Matrix<CellBase>>(range(5).map(() => createRow(labels.length)));
+
+  const addRow = () => {
+    const row = createRow(labels.length)
+    setMatrix([...matrix, row])
+  }
+
+  const onSubmit = async () => {
+    // TODO: send request
+    // const res = await fetch('/', { method: 'post', body: JSON.stringify(matrix) })
+    // const body: { id: string, group: string }[] = await res.json();
+    const body = [{ id: "1", group: "A" }, { id: "4", group: "B" }]
+
+    const _matrix = matrix.map((row) => {
+      const match = body.find((resRow) => resRow.id === row[0]?.value)
+      return [...row.slice(0, 4), { value: match?.group, readOnly: true }]
+    })
+    setMatrix(_matrix)
+  }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <>
+      <button onClick={addRow}>Add Row</button>
+      <div>
+        <Spreadsheet data={matrix} onChange={(matrix) => setMatrix(matrix)} columnLabels={labels} />
+      </div>
+      <button onClick={onSubmit}>submit</button>
+    </>
   )
-}
+};
 
 export default App
