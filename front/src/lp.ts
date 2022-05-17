@@ -1,6 +1,6 @@
-import factory, { Options, GLPK, LP } from 'glpk.js'
+import factory, { Options, GLPK, LP, Result } from 'glpk.js'
 
-type Member<R> = { id: number, role: R }
+type Member<Roles> = { id: number, role: Roles }
 type RoleConstraint = { [key: string]: { ub?: number } }
 type GLPK_Var = LP["objective"]["vars"][0]
 type GLPK_Subject = LP["subjectTo"][0]
@@ -52,14 +52,16 @@ const subjects = <R extends RoleConstraint> (
     ]
 }
 
+const varName = (id: Member<{}>['id'], groupName: string) => `${id}-${groupName}`
+
 export const run = async <R extends RoleConstraint> (
     _members: Member<keyof R>[],
     groups: string[],
     roleConstraints: R
-) => {
+): Promise<[id: number, group: string][]> => {
     const members = _members.sort(() => Math.random() - 0.5)
 
-    const X = members.flatMap((m) => groups.map<[[number, string], GLPK_Var]>((g) => [[m.id, g], { name: `${m.id}-${g}`, coef: 1.0 }]))
+    const X = members.flatMap((m) => groups.map<[[number, string], GLPK_Var]>((g) => [[m.id, g], { name: varName(m.id, g), coef: 1.0 }]))
     const vars = X.map(([, v]) => v)
     const binaries = vars.map((v) => v.name)
 
@@ -69,7 +71,7 @@ export const run = async <R extends RoleConstraint> (
         presol: true,
     }
 
-    const result = await glpk.solve({
+    const { result } = await glpk.solve({
         name: 'LP',
         objective: {
             direction: glpk.GLP_MAX,
@@ -80,6 +82,8 @@ export const run = async <R extends RoleConstraint> (
         subjectTo: subjects(glpk, X, members, groups, roleConstraints)
     }, options);
 
-    console.log('---------------------------------------')
-    console.log(result)
+    return members
+        .flatMap((m) => groups.map<[number, string, number]>((g) => [m.id, g, result.vars[varName(m.id, g)]]))
+        .filter(([, , assign]) => assign === 1)
+        .map(([id, group]) => [id, group])
 }

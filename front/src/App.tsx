@@ -36,9 +36,8 @@ const App = () => {
 
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
-    console.log({ members });
 
-    await run(
+    const result = await run(
       members,
       ['A', 'B', 'C'],
       {
@@ -47,11 +46,11 @@ const App = () => {
       }
     )
 
-    // const _matrix = matrix.map((row) => {
-    //   const match = body.find((resRow) => resRow.id === row[0]?.value)
-    //   return [...row.slice(0, 4), { value: match?.group, readOnly: true }]
-    // })
-    // setMatrix(_matrix)
+    const _matrix = matrix.map((row) => {
+      const [, group = ""] = result.find(([id]) => id === row[0]?.value) ?? []
+      return [...row.slice(0, 4), { value: group }]
+    })
+    setMatrix(_matrix)
   }
 
   return (
