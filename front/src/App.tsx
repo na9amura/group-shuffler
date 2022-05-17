@@ -41,12 +41,10 @@ const App = () => {
     await run(
       members,
       ['A', 'B', 'C'],
-      [
-        {
-          leader: { ub: 1 },
-          member: {},
-         }
-      ]
+      {
+        leader: { ub: 1 },
+        member: {},
+      }
     )
 
     // const _matrix = matrix.map((row) => {
