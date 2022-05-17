@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Spreadsheet, { CellBase, Matrix } from 'react-spreadsheet';
-import { run } from './lp';
+import { solve } from './lp';
 
 const range = (n: number) => [...Array(n).keys()]
 const createRow = (cols: number): CellBase[]=> range(cols).map((i) => ({ value: undefined }))
@@ -37,7 +37,7 @@ const App = () => {
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
 
-    const result = await run(
+    const result = await solve(
       members,
       ['A', 'B', 'C'],
       {

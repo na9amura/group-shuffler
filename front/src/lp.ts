@@ -54,7 +54,7 @@ const subjects = <R extends RoleConstraint> (
 
 const varName = (id: Member<{}>['id'], groupName: string) => `${id}-${groupName}`
 
-export const run = async <R extends RoleConstraint> (
+export const solve = async <R extends RoleConstraint> (
     _members: Member<keyof R>[],
     groups: string[],
     roleConstraints: R
@@ -66,12 +66,7 @@ export const run = async <R extends RoleConstraint> (
     const binaries = vars.map((v) => v.name)
 
     const glpk: GLPK = await factory()
-    const options: Options = {
-        msglev: glpk.GLP_MSG_ALL,
-        presol: true,
-    }
-
-    const { result } = await glpk.solve({
+    const params = {
         name: 'LP',
         objective: {
             direction: glpk.GLP_MAX,
@@ -80,7 +75,12 @@ export const run = async <R extends RoleConstraint> (
         },
         binaries,
         subjectTo: subjects(glpk, X, members, groups, roleConstraints)
-    }, options);
+    }
+    const options = {
+        msglev: glpk.GLP_MSG_ALL,
+        presol: true,
+    }
+    const { result } = await glpk.solve(params, options);
 
     return members
         .flatMap((m) => groups.map<[number, string, number]>((g) => [m.id, g, result.vars[varName(m.id, g)]]))
