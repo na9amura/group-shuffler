@@ -1,14 +1,33 @@
-import { useState } from "react";
-import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet";
+import { useState } from 'react';
+import Spreadsheet, { CellBase, Matrix } from 'react-spreadsheet';
+import { run } from './lp';
 
 const range = (n: number) => [...Array(n).keys()]
-const createRow = (cols: number): CellBase[] => range(cols).map((i) => {
-  return i === (cols - 1) ? { value: undefined, readOnly: true } : { value: undefined }
-})
+const createRow = (cols: number): CellBase[]=> range(cols).map((i) => ({ value: undefined }))
+const dummyData = [
+  [{ value: 1 }, { value: 'Aaron'   }, { value: 'leader' }, { value: '' }, { value: '' }],
+  [{ value: 2 }, { value: 'Bob'     }, { value: 'member' }, { value: '' }, { value: '' }],
+  [{ value: 3 }, { value: 'Chales'  }, { value: 'member' }, { value: '' }, { value: '' }],
+  [{ value: 4 }, { value: 'Derrick' }, { value: 'member' }, { value: '' }, { value: '' }],
+  [{ value: 5 }, { value: 'Eli'     }, { value: 'member' }, { value: '' }, { value: '' }],
+  [{ value: 6 }, { value: 'Favre'   }, { value: 'leader' }, { value: '' }, { value: '' }],
+  [{ value: 7 }, { value: 'Gathie'  }, { value: 'leader' }, { value: '' }, { value: '' }],
+  [{ value: 8 }, { value: 'Hill'    }, { value: 'member' }, { value: '' }, { value: '' }],
+  [{ value: 9 }, { value: 'Ingram'  }, { value: 'member' }, { value: '' }, { value: '' }],
+]
+const matrixToMemberList = (matrix: Matrix<CellBase>) => {
+  return matrix.flatMap((row) => {
+    return {
+      id: row[0]?.value,
+      role: row[2]?.value,
+      prev: row[3]?.value,
+    }
+  })
+}
 
 const App = () => {
   const labels = ['ID', 'Name', 'Type', 'Previous Group', 'New Group']
-  const [matrix, setMatrix] = useState<Matrix<CellBase>>(range(5).map(() => createRow(labels.length)));
+  const [matrix, setMatrix] = useState<Matrix<CellBase>>(dummyData);
 
   const addRow = () => {
     const row = createRow(labels.length)
@@ -16,16 +35,25 @@ const App = () => {
   }
 
   const onSubmit = async () => {
-    // TODO: send request
-    // const res = await fetch('/', { method: 'post', body: JSON.stringify(matrix) })
-    // const body: { id: string, group: string }[] = await res.json();
-    const body = [{ id: "1", group: "A" }, { id: "4", group: "B" }]
+    const members = matrixToMemberList(matrix)
+    console.log({ members });
 
-    const _matrix = matrix.map((row) => {
-      const match = body.find((resRow) => resRow.id === row[0]?.value)
-      return [...row.slice(0, 4), { value: match?.group, readOnly: true }]
-    })
-    setMatrix(_matrix)
+    await run(
+      members,
+      ['A', 'B', 'C'],
+      [
+        {
+          leader: { ub: 1 },
+          member: {},
+         }
+      ]
+    )
+
+    // const _matrix = matrix.map((row) => {
+    //   const match = body.find((resRow) => resRow.id === row[0]?.value)
+    //   return [...row.slice(0, 4), { value: match?.group, readOnly: true }]
+    // })
+    // setMatrix(_matrix)
   }
 
   return (
