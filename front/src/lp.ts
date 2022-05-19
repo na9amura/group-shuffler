@@ -1,4 +1,4 @@
-import factory, { Options, GLPK, LP, Result } from 'glpk.js'
+import factory, { GLPK, LP } from 'glpk.js'
 
 type Member<Roles> = { id: number, role: Roles }
 type RoleConstraint = { [key: string]: { ub?: number } }
@@ -21,12 +21,16 @@ const subjects = <R extends RoleConstraint> (
         }
     })
 
+    const numMembers = members.length
+    const numGroups = groups.length
+    const lb = Math.floor(numMembers / numGroups)
+    const ub = Math.ceil(numMembers / numGroups) + 1
     const subject2 = groups.flatMap((g) => {
         const g_m = X.filter(([[, gId]]) => gId === g).map(([, v]) => v)
         return {
             name: 'members-in-group-should-be-less-than-n',
             vars: g_m,
-            bnds: { type: glpk.GLP_DB, ub: 4.0, lb: 3.0 }
+            bnds: { type: glpk.GLP_DB, ub, lb }
         }
     })
 
@@ -65,6 +69,7 @@ export const solve = async <R extends RoleConstraint> (
     const vars = X.map(([, v]) => v)
     const binaries = vars.map((v) => v.name)
 
+    // @ts-expect-error : 2349
     const glpk: GLPK = await factory()
     const params = {
         name: 'LP',
