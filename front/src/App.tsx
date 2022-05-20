@@ -36,6 +36,7 @@ const App = () => {
   useEffect(() => {
     const _roles = matrix
       .map((row) => row[2]?.value)
+      .filter((v) => !!v)
       .filter((v, i, self) => self.indexOf(v) === i)
       .map<Role>((name) => [name, { ub: roles.find(([_name]) => _name === name)?.[1]?.ub ?? "" }])
 
