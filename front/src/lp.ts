@@ -9,8 +9,8 @@ const subjects = <R extends RoleConstraint> (
     glpk: GLPK,
     X: [[number, string], GLPK_Var][],
     members: Member<keyof R>[],
-    groups: string[],
-    roleConstraints: R
+    roleConstraints: R,
+    group: { list: string[], lb: number, ub: number }
 ): GLPK_Subject[] => {
     const subject1 = members.flatMap((m) => {
         const m_g = X.filter(([[mId]]) => mId === m.id).map(([, v]) => v)
@@ -21,21 +21,19 @@ const subjects = <R extends RoleConstraint> (
         }
     })
 
-    const numMembers = members.length
-    const numGroups = groups.length
-    const lb = Math.floor(numMembers / numGroups)
-    const ub = Math.ceil(numMembers / numGroups) + 1
-    const subject2 = groups.flatMap((g) => {
+    const { lb, ub } = group
+    const bnds = lb === ub ? { type: glpk.GLP_FX, ub, lb } : { type: glpk.GLP_DB, ub, lb }
+    const subject2 = group.list.flatMap((g) => {
         const g_m = X.filter(([[, gId]]) => gId === g).map(([, v]) => v)
         return {
             name: 'members-in-group-should-be-less-than-n',
             vars: g_m,
-            bnds: { type: glpk.GLP_DB, ub, lb }
+            bnds
         }
     })
 
     const subject3: GLPK_Subject[] = !roleConstraints ? [] : (
-        groups.flatMap((g) => {
+        group.list.flatMap((g) => {
             return Object.entries(roleConstraints).map(([name, constraint]) => {
                 const roleMembers = members.filter(({ role }) => role === name).map(({ id }) => id)
                 const g_m = X.filter(([[mId, gId]]) => gId === g && roleMembers.includes(mId)).map(([, v]) => v)
@@ -60,12 +58,12 @@ const varName = (id: Member<{}>['id'], groupName: string) => `${id}-${groupName}
 
 export const solve = async <R extends RoleConstraint> (
     _members: Member<keyof R>[],
-    groups: string[],
-    roleConstraints: R
+    roleConstraints: R,
+    group: { list: string[], lb: number, ub: number }
 ): Promise<[id: number, group: string][]> => {
     const members = _members.sort(() => Math.random() - 0.5)
 
-    const X = members.flatMap((m) => groups.map<[[number, string], GLPK_Var]>((g) => [[m.id, g], { name: varName(m.id, g), coef: 1.0 }]))
+    const X = members.flatMap((m) => group.list.map<[[number, string], GLPK_Var]>((g) => [[m.id, g], { name: varName(m.id, g), coef: 1.0 }]))
     const vars = X.map(([, v]) => v)
     const binaries = vars.map((v) => v.name)
 
@@ -79,7 +77,7 @@ export const solve = async <R extends RoleConstraint> (
             vars,
         },
         binaries,
-        subjectTo: subjects(glpk, X, members, groups, roleConstraints)
+        subjectTo: subjects(glpk, X, members, roleConstraints, group)
     }
     const options = {
         msglev: glpk.GLP_MSG_ALL,
@@ -88,7 +86,7 @@ export const solve = async <R extends RoleConstraint> (
     const { result } = await glpk.solve(params, options);
 
     return members
-        .flatMap((m) => groups.map<[number, string, number]>((g) => [m.id, g, result.vars[varName(m.id, g)]]))
+        .flatMap((m) => group.list.map<[number, string, number]>((g) => [m.id, g, result.vars[varName(m.id, g)]]))
         .filter(([, , assign]) => assign === 1)
         .map(([id, group]) => [id, group])
 }

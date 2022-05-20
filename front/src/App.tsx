@@ -31,7 +31,8 @@ const App = () => {
   const labels = ['Name', 'Role', 'Previous Group', 'New Group']
   const [matrix, setMatrix] = useState<Matrix<CellBase>>(dummyData);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [numberOfGroups, setNumberOfGroups] = useState<string>('1');
+  const [lowerBuffer, setLowerBuffer] = useState<string>('3');
+  const [upperBuffer, setUpperBuffer] = useState<string>('3');
 
   useEffect(() => {
     const _roles = matrix
@@ -54,7 +55,9 @@ const App = () => {
 
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
-    const groups = range(Number(numberOfGroups)).map((i) => String.fromCharCode(65 + i))
+    const numGroupSize = Math.round((Number(lowerBuffer) + Number(upperBuffer)) / 2)
+    const numGroups = Math.round(members.length / numGroupSize)
+    const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
     const roleConstraints = Object.fromEntries(
       roles
         .filter(([, { ub }]) => !!ub)
@@ -62,8 +65,12 @@ const App = () => {
 
     const result = await solve(
       members,
-      groups,
       roleConstraints,
+      {
+        list: groups,
+        lb: Number(lowerBuffer),
+        ub: Number(upperBuffer),
+      }
     )
 
     const _matrix = matrix.map((row, i) => {
@@ -88,12 +95,16 @@ const App = () => {
           roles.map(([name, value]) => (
             <div key={name}>
               <label>Max {name} in a group: </label>
-              <input type="number" min={1} max={100} value={value.ub} onChange={(e) => setUb(name, e.target.value)} />
+              <input type="number" min={9} max={100} value={value.ub} onChange={(e) => setUb(name, e.target.value)} />
             </div>
           ))
         }
-        <label>Number of groups: </label>
-        <input type="number" min={1} max={25} value={numberOfGroups} onChange={(e) => setNumberOfGroups(e.target.value)} />
+        <div>
+          <label>People in a group: </label>
+          <input type="number" min={0} max={50} value={lowerBuffer} onChange={(e) => setLowerBuffer(e.target.value)} />
+          <span> ~ </span>
+          <input type="number" min={0}  max={50} value={upperBuffer} onChange={(e) => setUpperBuffer(e.target.value)} />
+        </div>
       </div>
       <button onClick={onSubmit}>submit</button>
     </>
