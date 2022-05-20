@@ -33,6 +33,7 @@ const App = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [lowerBuffer, setLowerBuffer] = useState<string>('3');
   const [upperBuffer, setUpperBuffer] = useState<string>('3');
+  const [numGroups, setNumGroups] = useState<number>(0)
 
   useEffect(() => {
     const _roles = matrix
@@ -43,6 +44,14 @@ const App = () => {
 
     setRoles(_roles)
   }, [matrix])
+
+  useEffect(() => {
+    const members = matrix.length
+    const numGroupSize = Math.floor((Number(lowerBuffer) + Number(upperBuffer)) / 2)
+    const numGroups = Math.floor(members / numGroupSize)
+
+    setNumGroups(numGroups)
+  }, [lowerBuffer, upperBuffer, matrix])
 
   const addRow = () => {
     const row = createRow(labels.length)
@@ -60,8 +69,6 @@ const App = () => {
 
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
-    const numGroupSize = Math.round((Number(lowerBuffer) + Number(upperBuffer)) / 2)
-    const numGroups = Math.round(members.length / numGroupSize)
     const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
     const roleConstraints = Object.fromEntries(
       roles
@@ -109,6 +116,7 @@ const App = () => {
           <input type="number" min={0} max={50} value={lowerBuffer} onChange={(e) => setLowerBuffer(e.target.value)} />
           <span> ~ </span>
           <input type="number" min={0}  max={50} value={upperBuffer} onChange={(e) => setUpperBuffer(e.target.value)} />
+          <span> Create {numGroups} groups </span>
         </div>
       </div>
       <button onClick={onSubmit}>submit</button>
