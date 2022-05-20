@@ -53,6 +53,11 @@ const App = () => {
     setRoles(_roles)
   }
 
+  const onSort = () => {
+    const _matrix = [...matrix].sort(([,,,a], [,,,b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0))
+    setMatrix(_matrix)
+  }
+
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
     const numGroupSize = Math.round((Number(lowerBuffer) + Number(upperBuffer)) / 2)
@@ -107,6 +112,7 @@ const App = () => {
         </div>
       </div>
       <button onClick={onSubmit}>submit</button>
+      <button onClick={onSort}>sort</button>
     </>
   )
 };
