@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
+import { Members } from "./components/Members"
 import { solve } from "./lp"
 
 type Role = [string, { ub: string }]
@@ -29,7 +30,6 @@ const matrixToMemberList = (matrix: Matrix<CellBase>) => {
 }
 
 const App = () => {
-  const labels = ["Name", "Role", "Previous Group", "New Group"]
   const [matrix, setMatrix] = useState<Matrix<CellBase>>(dummyData)
   const [roles, setRoles] = useState<Role[]>([])
   const [lowerBuffer, setLowerBuffer] = useState<string>("3")
@@ -59,8 +59,8 @@ const App = () => {
     setNumGroups(numGroups)
   }, [lowerBuffer, upperBuffer, matrix])
 
-  const addRow = () => {
-    const row = createRow(labels.length)
+  const addRow = (length: number) => {
+    const row = createRow(length)
     setMatrix([...matrix, row])
   }
   const setUb = (target: string, ub: string) => {
@@ -101,17 +101,7 @@ const App = () => {
 
   return (
     <>
-      <div>
-        <h3>Members</h3>
-        <div>
-          <Spreadsheet
-            data={matrix}
-            onChange={(matrix) => setMatrix(matrix)}
-            columnLabels={labels}
-          />
-        </div>
-        <button onClick={addRow}>Add Row</button>
-      </div>
+      <Members matrix={matrix} setMatrix={setMatrix} addRow={addRow} />
       <div>
         <h3>Config</h3>
         {roles.map(([name, value]) => (
