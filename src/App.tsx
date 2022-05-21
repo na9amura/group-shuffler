@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
 import { Members } from "./components/Members"
+import { Options } from "./components/Options"
 import { solve } from "./lp"
 
 type Role = [string, { ub: string }]
@@ -63,12 +64,6 @@ const App = () => {
     const row = createRow(length)
     setMatrix([...matrix, row])
   }
-  const setUb = (target: string, ub: string) => {
-    const _roles = roles.map<Role>(([name, value]) =>
-      target === name ? [name, { ...value, ub }] : [name, value]
-    )
-    setRoles(_roles)
-  }
 
   const onSort = () => {
     const _matrix = [...matrix].sort(
@@ -100,45 +95,20 @@ const App = () => {
   }
 
   return (
-    <>
+    <div>
       <Members matrix={matrix} setMatrix={setMatrix} addRow={addRow} />
-      <div>
-        <h3>Config</h3>
-        {roles.map(([name, value]) => (
-          <div key={name}>
-            <label>Max {name} in a group: </label>
-            <input
-              type="number"
-              min={9}
-              max={100}
-              value={value.ub}
-              onChange={(e) => setUb(name, e.target.value)}
-            />
-          </div>
-        ))}
-        <div>
-          <label>People in a group: </label>
-          <input
-            type="number"
-            min={0}
-            max={50}
-            value={lowerBuffer}
-            onChange={(e) => setLowerBuffer(e.target.value)}
-          />
-          <span> ~ </span>
-          <input
-            type="number"
-            min={0}
-            max={50}
-            value={upperBuffer}
-            onChange={(e) => setUpperBuffer(e.target.value)}
-          />
-          <span> Create {numGroups} groups </span>
-        </div>
-      </div>
+      <Options
+        numGroups={numGroups}
+        roles={roles}
+        setRoles={setRoles}
+        lowerBuffer={lowerBuffer}
+        setLowerBuffer={setLowerBuffer}
+        upperBuffer={upperBuffer}
+        setUpperBuffer={setUpperBuffer}
+      />
       <button onClick={onSubmit}>submit</button>
       <button onClick={onSort}>sort</button>
-    </>
+    </div>
   )
 }
 
