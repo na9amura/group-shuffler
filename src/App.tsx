@@ -65,13 +65,6 @@ const App = () => {
     setMatrix([...matrix, row])
   }
 
-  const onSort = () => {
-    const _matrix = [...matrix].sort(
-      ([, , , a], [, , , b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0)
-    )
-    setMatrix(_matrix)
-  }
-
   const onSubmit = async () => {
     const members = matrixToMemberList(matrix)
     const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
@@ -107,7 +100,6 @@ const App = () => {
         setUpperBuffer={setUpperBuffer}
       />
       <button onClick={onSubmit}>submit</button>
-      <button onClick={onSort}>sort</button>
     </div>
   )
 }

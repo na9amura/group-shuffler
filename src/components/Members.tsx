@@ -8,6 +8,13 @@ export const Members: FC<{
   setMatrix: (matrix: Matrix<CellBase>) => void
   addRow: (length: number) => void
 }> = ({ matrix, setMatrix, addRow }) => {
+  const onSort = () => {
+    const _matrix = [...matrix].sort(
+      ([, , , a], [, , , b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0)
+    )
+    setMatrix(_matrix)
+  }
+
   return (
     <>
       <h3>Members</h3>
@@ -19,6 +26,7 @@ export const Members: FC<{
         />
       </div>
       <button onClick={() => addRow(labels.length)}>Add Row</button>
+      <button onClick={onSort}>Sort by group</button>
     </>
   )
 }
