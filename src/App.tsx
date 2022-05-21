@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react"
-import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
+import { CellBase, Matrix } from "react-spreadsheet"
 import { Members } from "./components/Members"
 import { Options } from "./components/Options"
-import { solve } from "./lp"
+import { useSolver } from "./hooks/use-solver"
 
 type Role = [string, { ub: string }]
 
-const range = (n: number) => [...Array(n).keys()]
-const createRow = (cols: number): CellBase[] =>
-  range(cols).map(() => ({ value: undefined }))
 const dummyData = [
   [{ value: "Aaron" }, { value: "leader" }, { value: "" }, { value: "" }],
   [{ value: "Bob" }, { value: "member" }, { value: "" }, { value: "" }],
@@ -20,15 +17,6 @@ const dummyData = [
   [{ value: "Hill" }, { value: "member" }, { value: "" }, { value: "" }],
   [{ value: "Ingram" }, { value: "member" }, { value: "" }, { value: "" }],
 ]
-const matrixToMemberList = (matrix: Matrix<CellBase>) => {
-  return matrix.flatMap((row, i) => {
-    return {
-      id: i,
-      role: row[1]?.value,
-      prev: row[2]?.value,
-    }
-  })
-}
 
 const App = () => {
   const [matrix, setMatrix] = useState<Matrix<CellBase>>(dummyData)
@@ -36,6 +24,17 @@ const App = () => {
   const [lowerBuffer, setLowerBuffer] = useState<string>("3")
   const [upperBuffer, setUpperBuffer] = useState<string>("3")
   const [numGroups, setNumGroups] = useState<number>(0)
+  const [_solve] = useSolver()
+  const solve = async () => {
+    const _matrix = await _solve(
+      matrix,
+      numGroups,
+      roles,
+      lowerBuffer,
+      upperBuffer
+    )
+    setMatrix(_matrix)
+  }
 
   useEffect(() => {
     const _roles = matrix
@@ -60,36 +59,9 @@ const App = () => {
     setNumGroups(numGroups)
   }, [lowerBuffer, upperBuffer, matrix])
 
-  const addRow = (length: number) => {
-    const row = createRow(length)
-    setMatrix([...matrix, row])
-  }
-
-  const onSubmit = async () => {
-    const members = matrixToMemberList(matrix)
-    const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
-    const roleConstraints = Object.fromEntries(
-      roles
-        .filter(([, { ub }]) => !!ub)
-        .map(([name, { ub, ...value }]) => [name, { ...value, ub: Number(ub) }])
-    )
-
-    const result = await solve(members, roleConstraints, {
-      list: groups,
-      lb: Number(lowerBuffer),
-      ub: Number(upperBuffer),
-    })
-
-    const _matrix = matrix.map((row, i) => {
-      const [, group = ""] = result.find(([id]) => id === i) ?? []
-      return [...row.slice(0, 3), { value: group }]
-    })
-    setMatrix(_matrix)
-  }
-
   return (
     <div>
-      <Members matrix={matrix} setMatrix={setMatrix} addRow={addRow} />
+      <Members matrix={matrix} setMatrix={setMatrix} />
       <Options
         numGroups={numGroups}
         roles={roles}
@@ -99,7 +71,7 @@ const App = () => {
         upperBuffer={upperBuffer}
         setUpperBuffer={setUpperBuffer}
       />
-      <button onClick={onSubmit}>submit</button>
+      <button onClick={() => solve()}>Solve</button>
     </div>
   )
 }

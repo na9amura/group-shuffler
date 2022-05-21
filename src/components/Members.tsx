@@ -1,19 +1,27 @@
-import { FC } from "react"
+import { FC, useCallback } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
+import { range } from "../utils/range"
 
 const labels = ["Name", "Role", "Previous Group", "New Group"]
 
 export const Members: FC<{
   matrix: Matrix<CellBase>
   setMatrix: (matrix: Matrix<CellBase>) => void
-  addRow: (length: number) => void
-}> = ({ matrix, setMatrix, addRow }) => {
-  const onSort = () => {
+}> = ({ matrix, setMatrix }) => {
+  const onSort = useCallback(() => {
     const _matrix = [...matrix].sort(
       ([, , , a], [, , , b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0)
     )
     setMatrix(_matrix)
-  }
+  }, [matrix])
+
+  const addRow = useCallback(
+    (length: number) => {
+      const row = range(length).map(() => ({ value: undefined }))
+      setMatrix([...matrix, row])
+    },
+    [matrix, setMatrix]
+  )
 
   return (
     <>
