@@ -1,8 +1,10 @@
 import { FC } from "react"
+import "./Options.css"
 
 type Role = [string, { ub: string }]
 
 export const Options: FC<{
+  className: string
   numGroups: number
   roles: Role[]
   setRoles: (roles: Role[]) => void
@@ -11,6 +13,7 @@ export const Options: FC<{
   upperBuffer: string
   setUpperBuffer: (value: string) => void
 }> = ({
+  className,
   numGroups,
   roles,
   setRoles,
@@ -27,38 +30,51 @@ export const Options: FC<{
   }
 
   return (
-    <div>
-      <h3>Config</h3>
-      {roles.map(([name, value]) => (
-        <div key={name}>
-          <label>Max {name} in a group: </label>
-          <input
-            type="number"
-            min={9}
-            max={100}
-            value={value.ub}
-            onChange={(e) => setUb(name, e.target.value)}
-          />
+    <div className={className}>
+      <h3>Shuffle optioin</h3>
+      <div className="options-group">
+        <h4>People in a group</h4>
+        <div className="options-group-input">
+          <div>
+            <label>Min</label>
+            <input
+              type="number"
+              min={0}
+              max={50}
+              value={lowerBuffer}
+              onChange={(e) => setLowerBuffer(e.target.value)}
+            />
+          </div>
+          <span> ~ </span>
+          <div>
+            <label>Max</label>
+            <input
+              type="number"
+              min={0}
+              max={50}
+              value={upperBuffer}
+              onChange={(e) => setUpperBuffer(e.target.value)}
+            />
+          </div>
         </div>
-      ))}
-      <div>
-        <label>People in a group: </label>
-        <input
-          type="number"
-          min={0}
-          max={50}
-          value={lowerBuffer}
-          onChange={(e) => setLowerBuffer(e.target.value)}
-        />
-        <span> ~ </span>
-        <input
-          type="number"
-          min={0}
-          max={50}
-          value={upperBuffer}
-          onChange={(e) => setUpperBuffer(e.target.value)}
-        />
-        <span> Create {numGroups} groups </span>
+        <blockquote>
+          <span>Create {numGroups} groups</span>
+        </blockquote>
+      </div>
+      <div className="options-role">
+        <h4>Role config</h4>
+        {roles.map(([name, value]) => (
+          <div key={name}>
+            <label>Max {name} in a group</label>
+            <input
+              type="number"
+              min={9}
+              max={100}
+              value={value.ub}
+              onChange={(e) => setUb(name, e.target.value)}
+            />
+          </div>
+        ))}
       </div>
     </div>
   )

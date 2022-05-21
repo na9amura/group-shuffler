@@ -1,0 +1,8 @@
+.options-group-input {
+  display: flex;
+  align-items: centerRk
+}
+
+.options-group-input > * ~ * {
+  margin-left: 8px;
+}

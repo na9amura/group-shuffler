@@ -3,6 +3,7 @@ import { CellBase, Matrix } from "react-spreadsheet"
 import { Members } from "./components/Members"
 import { Options } from "./components/Options"
 import { useSolver } from "./hooks/use-solver"
+import "./App.css"
 
 type Role = [string, { ub: string }]
 
@@ -60,17 +61,25 @@ const App = () => {
   }, [lowerBuffer, upperBuffer, matrix])
 
   return (
-    <div>
-      <Members matrix={matrix} setMatrix={setMatrix} />
-      <Options
-        numGroups={numGroups}
-        roles={roles}
-        setRoles={setRoles}
-        lowerBuffer={lowerBuffer}
-        setLowerBuffer={setLowerBuffer}
-        upperBuffer={upperBuffer}
-        setUpperBuffer={setUpperBuffer}
-      />
+    <div className="app">
+      <h1>Group shuffler</h1>
+      <div className="app-form">
+        <Members
+          className="app-members"
+          matrix={matrix}
+          setMatrix={setMatrix}
+        />
+        <Options
+          className="app-options"
+          numGroups={numGroups}
+          roles={roles}
+          setRoles={setRoles}
+          lowerBuffer={lowerBuffer}
+          setLowerBuffer={setLowerBuffer}
+          upperBuffer={upperBuffer}
+          setUpperBuffer={setUpperBuffer}
+        />
+      </div>
       <button onClick={() => solve()}>Solve</button>
     </div>
   )
