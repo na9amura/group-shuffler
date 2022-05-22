@@ -1,14 +1,15 @@
-import { FC, useCallback } from "react"
+import { FC, ReactNode, useCallback } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
-import { range } from "../utils/range"
+import "./Members.css"
 
 const labels = ["Name", "Role", "Previous Group", "New Group"]
 
 export const Members: FC<{
   className: string
+  children?: ReactNode
   matrix: Matrix<CellBase>
   setMatrix: (matrix: Matrix<CellBase>) => void
-}> = ({ className, matrix, setMatrix }) => {
+}> = ({ className, matrix, setMatrix, children }) => {
   const onSort = useCallback(() => {
     const _matrix = [...matrix].sort(
       ([, , , a], [, , , b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0)
@@ -35,7 +36,12 @@ export const Members: FC<{
         />
       </div>
       {/* <button onClick={() => addRow(labels.length)}>Add Row</button> */}
-      <button onClick={onSort}>Sort by group</button>
+      <div className="members-control">
+        {children}
+        <button className="button button-outline" onClick={onSort}>
+          Sort by group
+        </button>
+      </div>
     </div>
   )
 }

@@ -67,25 +67,20 @@ const App = () => {
           <h1 className="nav-title">Group shuffler</h1>
         </div>
       </nav>
-      <div className="app">
-        <div className="app-form">
-          <Members
-            className="app-members"
-            matrix={matrix}
-            setMatrix={setMatrix}
-          />
-          <Options
-            className="app-options"
-            numGroups={numGroups}
-            roles={roles}
-            setRoles={setRoles}
-            lowerBuffer={lowerBuffer}
-            setLowerBuffer={setLowerBuffer}
-            upperBuffer={upperBuffer}
-            setUpperBuffer={setUpperBuffer}
-          />
-        </div>
-        <button onClick={() => solve()}>Solve</button>
+      <div className="app-form">
+        <Members className="app-members" matrix={matrix} setMatrix={setMatrix}>
+          <button onClick={() => solve()}>Solve</button>
+        </Members>
+        <Options
+          className="app-options"
+          numGroups={numGroups}
+          roles={roles}
+          setRoles={setRoles}
+          lowerBuffer={lowerBuffer}
+          setLowerBuffer={setLowerBuffer}
+          upperBuffer={upperBuffer}
+          setUpperBuffer={setUpperBuffer}
+        />
       </div>
     </>
   )

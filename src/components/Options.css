@@ -1,6 +1,6 @@
 .options-group-input {
   display: flex;
-  align-items: centerRk
+  align-items: center;
 }
 
 .options-group-input > * ~ * {
