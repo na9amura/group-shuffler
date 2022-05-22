@@ -2,10 +2,12 @@
   background: #f4f5f6;
   border-bottom: 0.1rem solid #d1d1d1;
   height: 56px;
+  width: 100%;
 }
 
-.nav-container, .app {
-  width: 80vw;
+.nav-container, .app-form {
+  width: 100%;
+  max-width: 1024px;
   margin: 0 auto;
 }
 
@@ -16,26 +18,25 @@
 
 .nav-title {
   font-size: 3rem;
+  font-weight: bold;
   margin-bottom: 0;
 }
 
-.app {
-  padding: 16px 32px;
-}
-
 .app-form {
+  padding: 16px 32px;
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .app-form > * ~ * {
-  margin-left: 16px;
+  margin-left: 40px;
 }
 
 .app-members {
-  width: 640px;
+  flex: 0 1 640px;
 }
 
 .app-options {
-  min-width: 20vw;
+  flex: 1 0 auto;
 }
