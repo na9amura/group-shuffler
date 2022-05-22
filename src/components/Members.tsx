@@ -16,13 +16,13 @@ export const Members: FC<{
     setMatrix(_matrix)
   }, [matrix])
 
-  const addRow = useCallback(
-    (length: number) => {
-      const row = range(length).map(() => ({ value: undefined }))
-      setMatrix([...matrix, row])
-    },
-    [matrix, setMatrix]
-  )
+  // const addRow = useCallback(
+  //   (length: number) => {
+  //     const row = range(length).map(() => ({ value: undefined }))
+  //     setMatrix([...matrix, row])
+  //   },
+  //   [matrix, setMatrix]
+  // )
 
   return (
     <div className={className}>
@@ -34,7 +34,7 @@ export const Members: FC<{
           columnLabels={labels}
         />
       </div>
-      <button onClick={() => addRow(labels.length)}>Add Row</button>
+      {/* <button onClick={() => addRow(labels.length)}>Add Row</button> */}
       <button onClick={onSort}>Sort by group</button>
     </div>
   )

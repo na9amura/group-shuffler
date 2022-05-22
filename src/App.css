@@ -1,14 +1,39 @@
+.nav {
+  background: #f4f5f6;
+  border-bottom: 0.1rem solid #d1d1d1;
+  height: 56px;
+}
+
+.nav-container, .app {
+  width: 80vw;
+  margin: 0 auto;
+}
+
+.nav-container {
+  height: 100%;
+  padding: 8px 32px;
+}
+
+.nav-title {
+  font-size: 3rem;
+  margin-bottom: 0;
+}
+
 .app {
-  padding: 32px;
+  padding: 16px 32px;
 }
 
 .app-form {
   display: flex;
-
+  justify-content: center;
 }
 
 .app-form > * ~ * {
   margin-left: 16px;
+}
+
+.app-members {
+  width: 640px;
 }
 
 .app-options {

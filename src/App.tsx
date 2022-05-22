@@ -61,27 +61,33 @@ const App = () => {
   }, [lowerBuffer, upperBuffer, matrix])
 
   return (
-    <div className="app">
-      <h1>Group shuffler</h1>
-      <div className="app-form">
-        <Members
-          className="app-members"
-          matrix={matrix}
-          setMatrix={setMatrix}
-        />
-        <Options
-          className="app-options"
-          numGroups={numGroups}
-          roles={roles}
-          setRoles={setRoles}
-          lowerBuffer={lowerBuffer}
-          setLowerBuffer={setLowerBuffer}
-          upperBuffer={upperBuffer}
-          setUpperBuffer={setUpperBuffer}
-        />
+    <>
+      <nav className="nav">
+        <div className="nav-container">
+          <h1 className="nav-title">Group shuffler</h1>
+        </div>
+      </nav>
+      <div className="app">
+        <div className="app-form">
+          <Members
+            className="app-members"
+            matrix={matrix}
+            setMatrix={setMatrix}
+          />
+          <Options
+            className="app-options"
+            numGroups={numGroups}
+            roles={roles}
+            setRoles={setRoles}
+            lowerBuffer={lowerBuffer}
+            setLowerBuffer={setLowerBuffer}
+            upperBuffer={upperBuffer}
+            setUpperBuffer={setUpperBuffer}
+          />
+        </div>
+        <button onClick={() => solve()}>Solve</button>
       </div>
-      <button onClick={() => solve()}>Solve</button>
-    </div>
+    </>
   )
 }
 
