@@ -69,7 +69,7 @@ const App = () => {
       </nav>
       <div className="app-form">
         <Members className="app-members" matrix={matrix} setMatrix={setMatrix}>
-          <button onClick={() => solve()}>Solve</button>
+          <button onClick={() => solve()}>Shuffle</button>
         </Members>
         <Options
           className="app-options"
