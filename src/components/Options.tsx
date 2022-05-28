@@ -1,7 +1,6 @@
 import { FC } from "react"
+import { Role } from "../utils/types/role"
 import "./Options.css"
-
-type Role = [string, { ub: string }]
 
 export const Options: FC<{
   className: string
@@ -12,6 +11,8 @@ export const Options: FC<{
   setLowerBuffer: (value: string) => void
   upperBuffer: string
   setUpperBuffer: (value: string) => void
+  maxOverlap: string
+  setMaxOverlap: (value: string) => void
 }> = ({
   className,
   numGroups,
@@ -21,6 +22,8 @@ export const Options: FC<{
   setLowerBuffer,
   upperBuffer,
   setUpperBuffer,
+  maxOverlap,
+  setMaxOverlap,
 }) => {
   const setUb = (target: string, ub: string) => {
     const _roles = roles.map<Role>(([name, value]) =>
@@ -75,6 +78,19 @@ export const Options: FC<{
             />
           </div>
         ))}
+      </div>
+      <div className="options-prev-gropu">
+        <h4>Allow previous group overlap</h4>
+        <div>
+          <label>Max number</label>
+          <input
+            type="number"
+            min={9}
+            max={100}
+            value={maxOverlap}
+            onChange={(e) => setMaxOverlap(e.target.value)}
+          />
+        </div>
       </div>
     </div>
   )
