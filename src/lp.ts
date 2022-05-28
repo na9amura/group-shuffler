@@ -11,7 +11,7 @@ const subjects = <R extends RoleConstraint>(
   members: Member<keyof R>[],
   roleConstraints: R,
   group: { list: string[]; lb: number; ub: number },
-  prevGroup: number[][]
+  prevGroup: { list: number[][]; ub: number }
 ): GLPK_Subject[] => {
   const subject1 = members.flatMap((m) => {
     const m_g = X.filter(([[mId]]) => mId === m.id).map(([, v]) => v)
@@ -74,13 +74,15 @@ const subjects = <R extends RoleConstraint>(
   //   Gathie Charles Ingram
   // ]
   const subject4: GLPK_Subject[] =
-    prevGroup.length === 0
+    prevGroup.list.length === 0
       ? []
       : // [A, B, C]
         group.list.flatMap((g) => {
           // [[0, 6, 7] [1, 2, 3], [4, 5, 8]]
           return members
-            .map((m) => prevGroup.find((mates) => mates.includes(m.id)) ?? [])
+            .map(
+              (m) => prevGroup.list.find((mates) => mates.includes(m.id)) ?? []
+            )
             .map((prevMates) => {
               const prevMatesVar = X.filter(
                 ([[mId, gId]]) => prevMates.includes(mId) && g === gId
@@ -88,7 +90,7 @@ const subjects = <R extends RoleConstraint>(
               return {
                 name: "prev-group-constraint",
                 vars: prevMatesVar,
-                bnds: { type: glpk.GLP_UP, lb: 0.0, ub: 2.0 },
+                bnds: { type: glpk.GLP_UP, lb: 0.0, ub: prevGroup.ub },
               }
             })
         })
@@ -103,7 +105,7 @@ export const solve = async <R extends RoleConstraint>(
   _members: Member<keyof R>[],
   roleConstraints: R,
   group: { list: string[]; lb: number; ub: number },
-  prevGroup: number[][]
+  prevGroup: { list: number[][]; ub: number }
 ): Promise<[id: number, group: string][]> => {
   const members = _members.sort(() => Math.random() - 0.5)
 

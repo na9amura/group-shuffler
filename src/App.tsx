@@ -24,6 +24,7 @@ const App = () => {
   const [lowerBuffer, setLowerBuffer] = useState<string>("3")
   const [upperBuffer, setUpperBuffer] = useState<string>("3")
   const [numGroups, setNumGroups] = useState<number>(0)
+  const [maxOverlap, setMaxOverlap] = useState<string>("2")
   const [_solve] = useSolver()
 
   const solve = async () => {
@@ -32,7 +33,8 @@ const App = () => {
       numGroups,
       roles,
       lowerBuffer,
-      upperBuffer
+      upperBuffer,
+      maxOverlap
     )
     setMembers(_members)
   }
@@ -83,6 +85,8 @@ const App = () => {
           setLowerBuffer={setLowerBuffer}
           upperBuffer={upperBuffer}
           setUpperBuffer={setUpperBuffer}
+          maxOverlap={maxOverlap}
+          setMaxOverlap={setMaxOverlap}
         />
       </div>
     </>

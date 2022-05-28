@@ -19,7 +19,8 @@ export const useSolver = () => {
     numGroups: number,
     roles: Role[],
     lowerBuffer: string,
-    upperBuffer: string
+    upperBuffer: string,
+    maxOverlap: string
   ): Promise<Member[]> => {
     const members = convert(_members)
     const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
@@ -44,7 +45,10 @@ export const useSolver = () => {
         lb: Number(lowerBuffer),
         ub: Number(upperBuffer),
       },
-      Object.values(prevGroup)
+      {
+        list: Object.values(prevGroup),
+        ub: Number(maxOverlap),
+      }
     )
 
     return _members.map((member, i) => {
