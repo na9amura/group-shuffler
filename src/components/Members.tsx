@@ -1,21 +1,44 @@
-import { FC, ReactNode, useCallback } from "react"
+import { FC, ReactNode, useCallback, useEffect, useState } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
 import "./Members.css"
 
 const labels = ["Name", "Role", "Previous Group", "New Group"]
+type Member = { name: string; role: string; previous: string; group: string }
 
 export const Members: FC<{
   className: string
   children?: ReactNode
-  matrix: Matrix<CellBase>
-  setMatrix: (matrix: Matrix<CellBase>) => void
-}> = ({ className, matrix, setMatrix, children }) => {
-  const onSort = useCallback(() => {
-    const _matrix = [...matrix].sort(
-      ([, , , a], [, , , b]) => a?.value.charCodeAt(0) - b?.value.charCodeAt(0)
+  members: Member[]
+  setMembers: (members: Member[]) => void
+}> = ({ className, members, setMembers, children }) => {
+  const [matrix, setMatrix] = useState<Matrix<CellBase>>([])
+  useEffect(() => {
+    const matrix: Matrix<CellBase> = members.map(
+      ({ name, role, previous, group }) =>
+        [name, role, previous, group].map((value) => ({ value }))
     )
-    setMatrix(_matrix)
-  }, [matrix])
+    setMatrix(matrix)
+  }, [members])
+
+  const onChange = useCallback(
+    (matrix: Matrix<CellBase>) => {
+      const members = matrix.map<Member>(([name, role, previous, group]) => ({
+        name: name?.value,
+        role: role?.value,
+        previous: previous?.value,
+        group: group?.value,
+      }))
+      setMembers(members)
+    },
+    [setMembers]
+  )
+
+  const onSort = useCallback(() => {
+    const _members = [...members].sort(
+      ({ group: a }, { group: b }) => a.charCodeAt(0) - b.charCodeAt(0)
+    )
+    setMembers(_members)
+  }, [members])
 
   // const addRow = useCallback(
   //   (length: number) => {
@@ -31,7 +54,7 @@ export const Members: FC<{
       <div>
         <Spreadsheet
           data={matrix}
-          onChange={(matrix) => setMatrix(matrix)}
+          onChange={(matrix) => onChange(matrix)}
           columnLabels={labels}
         />
       </div>
