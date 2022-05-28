@@ -1,45 +1,47 @@
 import { useEffect, useState } from "react"
-import { CellBase, Matrix } from "react-spreadsheet"
 import { Members } from "./components/Members"
 import { Options } from "./components/Options"
 import { useSolver } from "./hooks/use-solver"
 import "./App.css"
+import { Role } from "./utils/types/role"
+import { Member } from "./utils/types/member"
 
-type Role = [string, { ub: string }]
-
-const dummyData = [
-  [{ value: "Aaron" }, { value: "leader" }, { value: "" }, { value: "" }],
-  [{ value: "Bob" }, { value: "member" }, { value: "" }, { value: "" }],
-  [{ value: "Chales" }, { value: "member" }, { value: "" }, { value: "" }],
-  [{ value: "Derrick" }, { value: "member" }, { value: "" }, { value: "" }],
-  [{ value: "Eli" }, { value: "member" }, { value: "" }, { value: "" }],
-  [{ value: "Favre" }, { value: "leader" }, { value: "" }, { value: "" }],
-  [{ value: "Gathie" }, { value: "leader" }, { value: "" }, { value: "" }],
-  [{ value: "Hill" }, { value: "member" }, { value: "" }, { value: "" }],
-  [{ value: "Ingram" }, { value: "member" }, { value: "" }, { value: "" }],
+const dummy: Member[] = [
+  { name: "Aaron", role: "leader", previous: "", group: "" },
+  { name: "Bob", role: "member", previous: "", group: "" },
+  { name: "Charles", role: "member", previous: "", group: "" },
+  { name: "Derrick", role: "member", previous: "", group: "" },
+  { name: "Eli", role: "member", previous: "", group: "" },
+  { name: "Farve", role: "leader", previous: "", group: "" },
+  { name: "Gathie", role: "leader", previous: "", group: "" },
+  { name: "Hill", role: "member", previous: "", group: "" },
+  { name: "Ingram", role: "member", previous: "", group: "" },
 ]
 
 const App = () => {
-  const [matrix, setMatrix] = useState<Matrix<CellBase>>(dummyData)
+  const [members, setMembers] = useState<Member[]>(dummy)
   const [roles, setRoles] = useState<Role[]>([])
   const [lowerBuffer, setLowerBuffer] = useState<string>("3")
   const [upperBuffer, setUpperBuffer] = useState<string>("3")
   const [numGroups, setNumGroups] = useState<number>(0)
+  const [maxOverlap, setMaxOverlap] = useState<string>("2")
   const [_solve] = useSolver()
+
   const solve = async () => {
-    const _matrix = await _solve(
-      matrix,
+    const _members = await _solve(
+      members,
       numGroups,
       roles,
       lowerBuffer,
-      upperBuffer
+      upperBuffer,
+      maxOverlap
     )
-    setMatrix(_matrix)
+    setMembers(_members)
   }
 
   useEffect(() => {
-    const _roles = matrix
-      .map((row) => row[1]?.value)
+    const _roles = members
+      .map(({ role }) => role)
       .filter((v) => !!v)
       .filter((v, i, self) => self.indexOf(v) === i)
       .map<Role>((name) => [
@@ -48,17 +50,16 @@ const App = () => {
       ])
 
     setRoles(_roles)
-  }, [matrix])
+  }, [members])
 
   useEffect(() => {
-    const members = matrix.length
     const numGroupSize = Math.floor(
       (Number(lowerBuffer) + Number(upperBuffer)) / 2
     )
-    const numGroups = Math.floor(members / numGroupSize)
+    const numGroups = Math.floor(members.length / numGroupSize)
 
     setNumGroups(numGroups)
-  }, [lowerBuffer, upperBuffer, matrix])
+  }, [lowerBuffer, upperBuffer, members])
 
   return (
     <>
@@ -68,7 +69,11 @@ const App = () => {
         </div>
       </nav>
       <div className="app-form">
-        <Members className="app-members" matrix={matrix} setMatrix={setMatrix}>
+        <Members
+          className="app-members"
+          members={members}
+          setMembers={setMembers}
+        >
           <button onClick={() => solve()}>Shuffle</button>
         </Members>
         <Options
@@ -80,6 +85,8 @@ const App = () => {
           setLowerBuffer={setLowerBuffer}
           upperBuffer={upperBuffer}
           setUpperBuffer={setUpperBuffer}
+          maxOverlap={maxOverlap}
+          setMaxOverlap={setMaxOverlap}
         />
       </div>
     </>
