@@ -9,10 +9,10 @@ import { Member } from "./utils/types/member"
 const dummy: Member[] = [
   { name: "Aaron", role: "leader", previous: "", group: "" },
   { name: "Bob", role: "member", previous: "", group: "" },
-  { name: "Chales", role: "member", previous: "", group: "" },
+  { name: "Charles", role: "member", previous: "", group: "" },
   { name: "Derrick", role: "member", previous: "", group: "" },
   { name: "Eli", role: "member", previous: "", group: "" },
-  { name: "Favre", role: "leader", previous: "", group: "" },
+  { name: "Farve", role: "leader", previous: "", group: "" },
   { name: "Gathie", role: "leader", previous: "", group: "" },
   { name: "Hill", role: "member", previous: "", group: "" },
   { name: "Ingram", role: "member", previous: "", group: "" },

@@ -10,7 +10,8 @@ const subjects = <R extends RoleConstraint>(
   X: [[number, string], GLPK_Var][],
   members: Member<keyof R>[],
   roleConstraints: R,
-  group: { list: string[]; lb: number; ub: number }
+  group: { list: string[]; lb: number; ub: number },
+  prevGroup: number[][]
 ): GLPK_Subject[] => {
   const subject1 = members.flatMap((m) => {
     const m_g = X.filter(([[mId]]) => mId === m.id).map(([, v]) => v)
@@ -52,7 +53,47 @@ const subjects = <R extends RoleConstraint>(
         })
       })
 
-  return [...subject1, ...subject2, ...subject3]
+  // If previous group were like this and upper bound were 1,
+  // [
+  //   [0, 6, 7], Aaron Gathie  Hill
+  //   [1, 2, 3], Bob   Charles Derrick
+  //   [4, 5, 8], Eli   Farve   Ingram
+  // ]
+  //
+  // create constraint like this.
+  //   Sum(X[[0, A]], X[[6, A]], X[[7, A]]) <= 1
+  //   Sum(X[[0, B]], X[[6, B]], X[[7, B]]) <= 1
+  //   Sum(X[[0, C]], X[[6, C]], X[[7, C]]) <= 1
+  //   ...
+  //   Sum(X[[4, C]], X[[5, C]], X[[8, C]]) <= 1
+  //
+  // And avoid same group assignment. There are only one former group-mate in the new group.
+  // [
+  //   Aaron Derrick Eli
+  //   Hill Bob Farve
+  //   Gathie Charles Ingram
+  // ]
+  const subject4: GLPK_Subject[] =
+    prevGroup.length === 0
+      ? []
+      : // [A, B, C]
+        group.list.flatMap((g) => {
+          // [[0, 6, 7] [1, 2, 3], [4, 5, 8]]
+          return members
+            .map((m) => prevGroup.find((mates) => mates.includes(m.id)) ?? [])
+            .map((prevMates) => {
+              const prevMatesVar = X.filter(
+                ([[mId, gId]]) => prevMates.includes(mId) && g === gId
+              ).map(([, v]) => v)
+              return {
+                name: "prev-group-constraint",
+                vars: prevMatesVar,
+                bnds: { type: glpk.GLP_UP, lb: 0.0, ub: 2.0 },
+              }
+            })
+        })
+
+  return [...subject1, ...subject2, ...subject3, ...subject4]
 }
 
 const varName = (id: Member<[]>["id"], groupName: string) =>
@@ -61,7 +102,8 @@ const varName = (id: Member<[]>["id"], groupName: string) =>
 export const solve = async <R extends RoleConstraint>(
   _members: Member<keyof R>[],
   roleConstraints: R,
-  group: { list: string[]; lb: number; ub: number }
+  group: { list: string[]; lb: number; ub: number },
+  prevGroup: number[][]
 ): Promise<[id: number, group: string][]> => {
   const members = _members.sort(() => Math.random() - 0.5)
 
@@ -84,7 +126,7 @@ export const solve = async <R extends RoleConstraint>(
       vars,
     },
     binaries,
-    subjectTo: subjects(glpk, X, members, roleConstraints, group),
+    subjectTo: subjects(glpk, X, members, roleConstraints, group, prevGroup),
   }
   const options = {
     msglev: glpk.GLP_MSG_ALL,

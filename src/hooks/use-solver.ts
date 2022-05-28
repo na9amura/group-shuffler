@@ -1,7 +1,7 @@
 import { solve } from "../lp"
 import { range } from "../utils/range"
-import { Member } from "../utils/types/member";
-import { Role } from "../utils/types/role";
+import { Member } from "../utils/types/member"
+import { Role } from "../utils/types/role"
 
 const convert = (members: Member[]) => {
   return members.map(({ role, previous }, i) => {
@@ -14,7 +14,13 @@ const convert = (members: Member[]) => {
 }
 
 export const useSolver = () => {
-  const _solve = async (_members: Member[], numGroups: number, roles: Role[], lowerBuffer: string, upperBuffer: string): Promise<Member[]> => {
+  const _solve = async (
+    _members: Member[],
+    numGroups: number,
+    roles: Role[],
+    lowerBuffer: string,
+    upperBuffer: string
+  ): Promise<Member[]> => {
     const members = convert(_members)
     const groups = range(numGroups).map((i) => String.fromCharCode(65 + i))
     const roleConstraints = Object.fromEntries(
@@ -22,12 +28,24 @@ export const useSolver = () => {
         .filter(([, { ub }]) => !!ub)
         .map(([name, { ub, ...value }]) => [name, { ...value, ub: Number(ub) }])
     )
+    const prevGroup = _members
+      .filter(({ previous }) => !!previous)
+      .map<[number, string]>(({ previous }, id) => [id, previous])
+      .reduce<{ [key: string]: number[] }>(
+        (a, [id, group]) => ({ ...a, [group]: [...(a[group] || []), id] }),
+        {}
+      )
 
-    const result = await solve(members, roleConstraints, {
-      list: groups,
-      lb: Number(lowerBuffer),
-      ub: Number(upperBuffer),
-    })
+    const result = await solve(
+      members,
+      roleConstraints,
+      {
+        list: groups,
+        lb: Number(lowerBuffer),
+        ub: Number(upperBuffer),
+      },
+      Object.values(prevGroup)
+    )
 
     return _members.map((member, i) => {
       const [, group = ""] = result.find(([id]) => id === i) ?? []
