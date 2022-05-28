@@ -1,8 +1,7 @@
 import { solve } from "../lp"
 import { range } from "../utils/range"
-
-type Role = [string, { ub: string }]
-type Member = { name: string; role: string; previous: string; group: string }
+import { Member } from "../utils/types/member";
+import { Role } from "../utils/types/role";
 
 const convert = (members: Member[]) => {
   return members.map(({ role, previous }, i) => {

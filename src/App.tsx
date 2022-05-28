@@ -3,10 +3,9 @@ import { Members } from "./components/Members"
 import { Options } from "./components/Options"
 import { useSolver } from "./hooks/use-solver"
 import "./App.css"
+import { Role } from "./utils/types/role"
+import { Member } from "./utils/types/member"
 
-type Role = [string, { ub: string }]
-
-type Member = { name: string; role: string; previous: string; group: string }
 const dummy: Member[] = [
   { name: "Aaron", role: "leader", previous: "", group: "" },
   { name: "Bob", role: "member", previous: "", group: "" },

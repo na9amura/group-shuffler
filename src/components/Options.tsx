@@ -1,7 +1,6 @@
 import { FC } from "react"
+import { Role } from "../utils/types/role"
 import "./Options.css"
-
-type Role = [string, { ub: string }]
 
 export const Options: FC<{
   className: string

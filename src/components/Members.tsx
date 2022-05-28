@@ -1,9 +1,9 @@
 import { FC, ReactNode, useCallback, useEffect, useState } from "react"
 import Spreadsheet, { CellBase, Matrix } from "react-spreadsheet"
+import { Member } from "../utils/types/member"
 import "./Members.css"
 
 const labels = ["Name", "Role", "Previous Group", "New Group"]
-type Member = { name: string; role: string; previous: string; group: string }
 
 export const Members: FC<{
   className: string
