@@ -205,7 +205,7 @@ export const solve = async <R extends RoleConstraint>(
   const vars = X.map(([, v]) => v)
   const binaries = vars.map((v) => v.name)
 
-  // @ts-expect-error : 2349
+  // @ts-expect-error ts(2349): The default export of "glpk.js" actually has call signatures.
   const glpk: GLPK = await factory()
   const params = {
     name: "LP",
@@ -221,6 +221,7 @@ export const solve = async <R extends RoleConstraint>(
     msglev: glpk.GLP_MSG_ALL,
     presol: true,
   }
+  // @ts-ignore: ts(80007) `solve` returns Promise
   const { result } = await glpk.solve(params, options)
 
   return members

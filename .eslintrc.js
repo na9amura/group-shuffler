@@ -22,5 +22,11 @@ module.exports = {
   rules: {
     "linebreak-style": ["error", "unix"],
     "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-ignore": "allow-with-description",
+      },
+    ],
   },
 }
