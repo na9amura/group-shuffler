@@ -1,4 +1,4 @@
-import { solve } from "../lp"
+import { solve } from "../utils/lp"
 import { range } from "../utils/range"
 import { Member } from "../utils/types/member"
 import { Role } from "../utils/types/role"

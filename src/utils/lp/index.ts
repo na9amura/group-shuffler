@@ -205,7 +205,7 @@ export const solve = async <R extends RoleConstraint>(
   const vars = X.map(([, v]) => v)
   const binaries = vars.map((v) => v.name)
 
-  // @ts-expect-error ts(2349): The default export of "glpk.js" actually has call signatures.
+  // @ts-expect-error ts(2349): The default export of "glpk.js" has .
   const glpk: GLPK = await factory()
   const params = {
     name: "LP",
