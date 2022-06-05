@@ -1,4 +1,4 @@
-import { solve } from "../lp"
+import { solve } from "../utils/lp"
 import { range } from "../utils/range"
 import { Member } from "../utils/types/member"
 import { Role } from "../utils/types/role"
@@ -37,19 +37,19 @@ export const useSolver = () => {
         {}
       )
 
-    const result = await solve(
+    const result = await solve({
       members,
       roleConstraints,
-      {
+      group: {
         list: groups,
         lb: Number(lowerBuffer),
         ub: Number(upperBuffer),
       },
-      {
+      prevGroup: {
         list: Object.values(prevGroup),
         ub: Number(maxOverlap),
-      }
-    )
+      },
+    })
 
     return _members.map((member, i) => {
       const [, group = ""] = result.find(([id]) => id === i) ?? []

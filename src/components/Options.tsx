@@ -66,6 +66,7 @@ export const Options: FC<{
       </div>
       <div className="options-role">
         <h4>Role config</h4>
+        {/* TODO: sort by name */}
         {roles.map(([name, value]) => (
           <div key={name}>
             <label>Max {name} in a group</label>
