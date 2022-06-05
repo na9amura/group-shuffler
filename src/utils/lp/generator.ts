@@ -1,20 +1,14 @@
 import factory, { GLPK, Result } from "glpk.js"
 import { subjects } from "./subjects"
-import {
-  GLPK_Var,
-  GroupConstraintSource,
-  Member,
-  PrevGroupConstraintSource,
-  RoleConstraint,
-} from "./types"
+import { GLPK_Var, GeneratorParams } from "./types"
 import { varName } from "./var-name"
 
-export const generateSolver = async <R extends RoleConstraint>(
-  members: Member<keyof R>[],
-  roleConstraints: R,
-  group: GroupConstraintSource,
-  prevGroup: PrevGroupConstraintSource
-): Promise<{ solve: () => Promise<Result> }> => {
+export const generateSolver = async ({
+  members,
+  roleConstraints,
+  group,
+  prevGroup,
+}: GeneratorParams): Promise<{ solve: () => Promise<Result> }> => {
   const X = members.flatMap((m) =>
     group.list.map<[[number, string], GLPK_Var]>((g) => [
       [m.id, g],
@@ -34,7 +28,14 @@ export const generateSolver = async <R extends RoleConstraint>(
       vars,
     },
     binaries,
-    subjectTo: subjects(glpk, X, members, roleConstraints, group, prevGroup),
+    subjectTo: subjects({
+      glpk,
+      X,
+      members,
+      roleConstraints,
+      group,
+      prevGroup,
+    }),
   }
   const options = {
     msglev: glpk.GLP_MSG_ALL,

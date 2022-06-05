@@ -1,26 +1,21 @@
 import { generateSolver } from "./generator"
-import {
-  GroupConstraintSource,
-  Member,
-  PrevGroupConstraintSource,
-  RoleConstraint,
-} from "./types"
+import { GeneratorParams } from "./types"
 import { varName } from "./var-name"
 
-export const solve = async <R extends RoleConstraint>(
-  _members: Member<keyof R>[],
-  roleConstraints: R,
-  group: GroupConstraintSource,
-  prevGroup: PrevGroupConstraintSource
-): Promise<[id: number, group: string][]> => {
+export const solve = async ({
+  members: _members,
+  roleConstraints,
+  group,
+  prevGroup,
+}: GeneratorParams): Promise<[id: number, group: string][]> => {
   const members = _members.sort(() => Math.random() - 0.5)
 
-  const solver = await generateSolver(
+  const solver = await generateSolver({
     members,
     roleConstraints,
     group,
-    prevGroup
-  )
+    prevGroup,
+  })
   const { result } = await solver.solve()
 
   return members

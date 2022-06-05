@@ -1,21 +1,9 @@
-import { GLPK } from "glpk.js"
-import {
-  GLPK_Subject,
-  GroupConstraintSource,
-  Member,
-  PrevGroupConstraintSource,
-  RoleConstraint,
-  XType,
-} from "../types"
+import { GLPK_Subject, SubjectGenerator, SubjectParams } from "../types"
 
 /**
  * Ensure all members are assigned to one group
  */
-const groupAssignmentSubject = <R extends RoleConstraint>(
-  glpk: GLPK,
-  X: XType,
-  members: Member<keyof R>[]
-): GLPK_Subject[] => {
+const groupAssignmentSubject: SubjectGenerator = ({ glpk, X, members }) => {
   // e.g. [0, 1, 2, 3]
   return members.flatMap((m) => {
     // Get [A_0, B_0, C_0]
@@ -33,11 +21,7 @@ const groupAssignmentSubject = <R extends RoleConstraint>(
 /**
  * Limit number of people in a group
  */
-const groupMemberLimitSubject = (
-  glpk: GLPK,
-  X: XType,
-  group: GroupConstraintSource
-): GLPK_Subject[] => {
+const groupMemberLimitSubject: SubjectGenerator = ({ glpk, X, group }) => {
   const { lb, ub } = group
   const bnds =
     lb === ub ? { type: glpk.GLP_FX, ub, lb } : { type: glpk.GLP_DB, ub, lb }
@@ -73,13 +57,13 @@ const groupMemberLimitSubject = (
  *
  * Due to those constraints, ID:0, ID:2 and ID:9 won't be assigned same group.
  */
-const groupRoleSubject = <R extends RoleConstraint>(
-  glpk: GLPK,
-  X: XType,
-  members: Member<keyof R>[],
-  roleConstraints: R,
-  group: GroupConstraintSource
-): GLPK_Subject[] => {
+const groupRoleSubject: SubjectGenerator = ({
+  glpk,
+  X,
+  members,
+  roleConstraints,
+  group,
+}) => {
   if (!roleConstraints) return []
 
   // e.g. [A, B, C]
@@ -131,13 +115,13 @@ const groupRoleSubject = <R extends RoleConstraint>(
  *   [6, 2, 8],
  * ]
  */
-const prevGroupSubject = <R extends RoleConstraint>(
-  glpk: GLPK,
-  X: XType,
-  members: Member<keyof R>[],
-  group: GroupConstraintSource,
-  prevGroup: PrevGroupConstraintSource
-): GLPK_Subject[] => {
+const prevGroupSubject: SubjectGenerator = ({
+  glpk,
+  X,
+  members,
+  group,
+  prevGroup,
+}) => {
   if (prevGroup.list.length === 0) return []
 
   // [A, B, C]
@@ -161,18 +145,19 @@ const prevGroupSubject = <R extends RoleConstraint>(
   })
 }
 
-export const subjects = <R extends RoleConstraint>(
-  glpk: GLPK,
-  X: XType,
-  members: Member<keyof R>[],
-  roleConstraints: R,
-  group: GroupConstraintSource,
-  prevGroup: PrevGroupConstraintSource
-): GLPK_Subject[] => {
+export const subjects = ({
+  glpk,
+  X,
+  members,
+  roleConstraints,
+  group,
+  prevGroup,
+}: SubjectParams): GLPK_Subject[] => {
+  const args = { glpk, X, members, roleConstraints, group, prevGroup }
   return [
-    ...groupAssignmentSubject<R>(glpk, X, members),
-    ...groupMemberLimitSubject(glpk, X, group),
-    ...groupRoleSubject(glpk, X, members, roleConstraints, group),
-    ...prevGroupSubject(glpk, X, members, group, prevGroup),
-  ]
+    groupAssignmentSubject,
+    groupMemberLimitSubject,
+    groupRoleSubject,
+    prevGroupSubject,
+  ].flatMap((generator) => generator(args))
 }

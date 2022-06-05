@@ -37,19 +37,19 @@ export const useSolver = () => {
         {}
       )
 
-    const result = await solve(
+    const result = await solve({
       members,
       roleConstraints,
-      {
+      group: {
         list: groups,
         lb: Number(lowerBuffer),
         ub: Number(upperBuffer),
       },
-      {
+      prevGroup: {
         list: Object.values(prevGroup),
         ub: Number(maxOverlap),
-      }
-    )
+      },
+    })
 
     return _members.map((member, i) => {
       const [, group = ""] = result.find(([id]) => id === i) ?? []
